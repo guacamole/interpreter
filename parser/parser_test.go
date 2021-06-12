@@ -6,18 +6,20 @@ import (
 	"testing"
 )
 
-func TestLetStatement(t *testing.T) {
+func TestLetStatements(t *testing.T) {
 
 	input := `
-	let x = 5;
-	let y = 10;
-	let foobar = 838383;
+return  5;
+return 10;
+return 838383;
 `
 
 	l := lexer.New(input)
 	p := New(l)
 
 	program := p.ParseProgram()
+	checkParseErrors(t,p)
+
 	if program == nil {
 		t.Fatalf("ParserProgram() returned nil")
 	}
@@ -25,24 +27,22 @@ func TestLetStatement(t *testing.T) {
 		t.Fatalf("Program.Statements does not cotain 3 statements got %d",len(program.Statements))
 	}
 
-	tests := []struct {
-		expectedIdentifier string
-	}{
-		{"x"},
-		{"y"},
-		{"foobar"},
-	}
+	for _,stmt := range program.Statements {
 
-	for i,tt := range tests {
-
-		stmt := program.Statements[i]
-		if !LetStatement(t,stmt,tt.expectedIdentifier){
-			return
+		returnStmt, ok := stmt.(*ast.ReturnStatement)
+		if !ok{
+			t.Errorf("stmt not *ast.ReturnStatement. got=%T", stmt)
+			continue
+		}
+		if returnStmt.TokenLiteral() != "return" {
+			t.Errorf("turnStmt.TokenLiteral not 'return', got = %q",returnStmt.TokenLiteral())
 		}
 	}
+
+
 }
 
-func LetStatement(t *testing.T, s ast.Statement, name string) bool{
+func testLetStatement(t *testing.T, s ast.Statement, name string) bool{
 
 	if s.TokenLiteral() != "let" {
 		t.Errorf("token literal is not let got= %q",s.TokenLiteral())
@@ -66,4 +66,18 @@ func LetStatement(t *testing.T, s ast.Statement, name string) bool{
 	return true
 }
 
+
+func checkParseErrors(t *testing.T, p *Parser) {
+	errors := p.Errors()
+
+	if len(errors) == 0{
+		return
+	}
+	t.Errorf("parser has %d errors",len(errors))
+
+	for _,msg  := range errors {
+		t.Errorf("parser error %q",msg)
+	}
+	t.FailNow()
+}
 
