@@ -1,6 +1,8 @@
 package lexer
 
-import "interpreter/token"
+import (
+	"interpreter/token"
+)
 
 type Lexer struct {
 	input string
@@ -12,18 +14,19 @@ type Lexer struct {
 func New(input string) *Lexer {
 
 	l := &Lexer{input:input}
-	l.ReadChar()
+	l.readChar()
 	return l
 }
 
-func (l *Lexer) ReadChar() {
+func (l *Lexer) readChar() {
 	if l.readPosition >= len(l.input){
 		l.ch = 0
-	}else{
+	}else {
 		l.ch = l.input[l.readPosition]
+	}
 		l.position = l.readPosition
 		l.readPosition++
-	}
+
 }
 
 func (l *Lexer) NextToken() token.Token{
@@ -35,22 +38,21 @@ func (l *Lexer) NextToken() token.Token{
 	case '=':
 		if l.peakChar() == '='{
 			ch := l.ch
-			l.ReadChar()
+			l.readChar()
 			literal := string(ch) + string(l.ch)
 			t = token.Token{Type:token.EQ, Literal: literal}
 		}else {
-			t= newToken(token.ASSIGN,l.ch)
+			t = newToken(token.ASSIGN,l.ch)
 		}
 
 	case '!':
 		if l.peakChar() == '='{
 			ch := l.ch
-			l.ReadChar()
+			l.readChar()
 			literal := string(ch) + string(l.ch)
 			t = token.Token{ Type: token.NOT_EQ,Literal: literal}
 		}else {
-			t = newToken(token.BANG,l.ch)
-
+			t = newToken(token.BANG, l.ch)
 		}
 	case '+':
 		t = newToken(token.PLUS,l.ch)
@@ -95,9 +97,8 @@ func (l *Lexer) NextToken() token.Token{
 		}
 
 	}
-	l.ReadChar()
+	l.readChar()
 	return t
-	
 }
 /*
 
@@ -119,7 +120,7 @@ func (l *Lexer) readIdentifier() string {
 	position := l.position
 
 	for isLetter(l.ch) {
-		l.ReadChar()
+		l.readChar()
 	}
 
 	return l.input[position:l.position]
@@ -134,7 +135,7 @@ func (l *Lexer) readNumber() string{
 	position := l.position
 
 	for isDigit(l.ch) {
-		l.ReadChar()
+		l.readChar()
 	}
 
 	return l.input[position:l.position]
@@ -148,7 +149,7 @@ func isDigit(ch byte) bool {
 func (l *Lexer) skipWhiteSpaces(){
 
 	for l.ch == ' ' || l.ch =='\n' || l.ch == '\t' || l.ch == '\r' {
-		l.ReadChar()
+		l.readChar()
 	}
 }
 
