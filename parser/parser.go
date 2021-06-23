@@ -56,6 +56,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.INT, p.ParseIntegerLiteral)
 	p.registerPrefix(token.BANG, p.ParsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.ParsePrefixExpression)
+	p.registerPrefix(token.TRUE,p.ParseBoolean)
+	p.registerPrefix(token.FALSE,p.ParseBoolean)
 
 	p.infixparseFns = make(map[token.TokenType]infixparseFn)
 
@@ -67,6 +69,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.LT, p.ParseInfixExpression)
 	p.registerInfix(token.EQ, p.ParseInfixExpression)
 	p.registerInfix(token.NOT_EQ, p.ParseInfixExpression)
+
 
 	return p
 }
@@ -135,9 +138,11 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	return stmt
 
 }
+
 //ParseExpression is the heart of our parser, shows how Pratt parser actually works
 func (p *Parser) ParseExpression(precedence int) ast.Expression {
 	prefix := p.prefixparseFns[p.curToken.Type]
+	defer untrace(trace("ParseExpression"))
 	if prefix == nil {
 		p.NoPrefixParseFnError(p.curToken.Type)
 		return nil
@@ -151,7 +156,6 @@ func (p *Parser) ParseExpression(precedence int) ast.Expression {
 			return leftExp
 		}
 		p.nextToken()
-
 		leftExp = infix(leftExp)
 	}
 
@@ -161,6 +165,8 @@ func (p *Parser) ParseExpression(precedence int) ast.Expression {
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.curToken}
 	stmt.Expression = p.ParseExpression(LOWEST)
+	defer untrace(trace("ParseExpressionStatement"))
+
 
 	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
@@ -172,6 +178,7 @@ func (p *Parser) ParsePrefixExpression() ast.Expression {
 
 	exp := &ast.PrefixExpression{Token: p.curToken, Operator: p.curToken.Literal}
 	p.nextToken()
+	defer untrace(trace("ParsePrefixExpression"))
 
 	exp.Right = p.ParseExpression(PREFIX)
 	return exp
@@ -184,6 +191,7 @@ func (p *Parser) ParseInfixExpression(left ast.Expression) ast.Expression {
 		Left:     left,
 		Operator: p.curToken.Literal,
 	}
+	defer untrace(trace("ParseInfixExpression"))
 
 	precedence := p.curPrecedence()
 	p.nextToken()
@@ -199,6 +207,8 @@ func (p *Parser) parseIdentifier() ast.Expression {
 func (p *Parser) ParseIntegerLiteral() ast.Expression {
 	lit := &ast.IntegerLiteral{Token: p.curToken}
 	value, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
+	defer untrace(trace("ParseIntegerLiteral"))
+
 	if err != nil {
 		msg := fmt.Sprintf("couldn't parse %v as integer", p.curToken.Literal)
 		p.errors = append(p.errors, msg)
@@ -207,6 +217,14 @@ func (p *Parser) ParseIntegerLiteral() ast.Expression {
 	lit.Value = value
 	return lit
 
+}
+
+func (p *Parser) ParseBoolean() ast.Expression {
+	exp := &ast.Boolean{
+		Token: p.curToken,
+		Value: p.curTokenIs(token.TRUE),
+	}
+	return exp
 }
 
 func (p *Parser) peekPrecedence() int {
