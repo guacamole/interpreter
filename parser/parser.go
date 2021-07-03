@@ -172,7 +172,7 @@ func (p *Parser) ParseExpression(precedence int) ast.Expression {
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.curToken}
 	stmt.Expression = p.ParseExpression(LOWEST)
-//	defer untrace(trace("ParseExpressionStatement"))
+	//	defer untrace(trace("ParseExpressionStatement"))
 
 	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
@@ -184,7 +184,7 @@ func (p *Parser) ParsePrefixExpression() ast.Expression {
 
 	exp := &ast.PrefixExpression{Token: p.curToken, Operator: p.curToken.Literal}
 	p.nextToken()
-//	defer untrace(trace("ParsePrefixExpression"))
+	//	defer untrace(trace("ParsePrefixExpression"))
 
 	exp.Right = p.ParseExpression(PREFIX)
 	return exp
@@ -213,7 +213,7 @@ func (p *Parser) parseIdentifier() ast.Expression {
 func (p *Parser) ParseIntegerLiteral() ast.Expression {
 	lit := &ast.IntegerLiteral{Token: p.curToken}
 	value, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
-//	defer untrace(trace("ParseIntegerLiteral"))
+	//	defer untrace(trace("ParseIntegerLiteral"))
 
 	if err != nil {
 		msg := fmt.Sprintf("couldn't parse %v as integer", p.curToken.Literal)
