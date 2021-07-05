@@ -14,6 +14,7 @@ const (
 	INTEGER_OBJ = "INTEGER"
 	BOOLENA_OBJ = "BOOLEAN"
 	NUL_OBJ     = "NULL"
+	RETURN_VALUE_OBJ = "RETURN_VALUE"
 )
 
 type Integer struct {
@@ -34,3 +35,10 @@ type Null struct{}
 
 func (n *Null) Inspect() string  { return fmt.Sprintf("null") }
 func (n *Null) Type() ObjectType { return NUL_OBJ }
+
+type ReturnValue struct {
+	Value Object
+}
+
+func (r *ReturnValue) Inspect() string { return r.Value.Inspect()}
+func (r *ReturnValue) Type() ObjectType { return RETURN_VALUE_OBJ}
