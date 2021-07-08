@@ -13,8 +13,9 @@ const (
 
 	//identifier and literals
 
-	IDENT = "IDENT" //add,a,b,x,foo
-	INT   = "INT"   //1,2,3
+	IDENT  = "IDENT"  //add,a,b,x,foo
+	INT    = "INT"    //1,2,3
+	STRING = "STRING" //Hello how are you today?
 
 	//operators
 
