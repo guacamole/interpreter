@@ -36,6 +36,8 @@ const (
 	RBRACE    = "}"
 	LT        = "<"
 	GT        = ">"
+	LBRACKET  = "["
+	RBRACKET  = "]"
 
 	//keywords
 
