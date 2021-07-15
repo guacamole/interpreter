@@ -38,6 +38,7 @@ const (
 	GT        = ">"
 	LBRACKET  = "["
 	RBRACKET  = "]"
+	COLON     = ":"
 
 	//keywords
 
